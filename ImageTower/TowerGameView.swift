@@ -94,14 +94,20 @@ struct TowerGameView: View {
         ZStack {
             ImageTowerTheme.sky.ignoresSafeArea()
 
-            VStack(spacing: 10) {
-                header
-                scoreRow
-                board
+            VStack(spacing: 0) {
+                VStack(spacing: 10) {
+                    header
+                    scoreRow
+                    board
+                }
+                .padding(.horizontal, 14)
+                .padding(.top, 8)
+                // 盤面とバナーの間に余白を取り、ドロップ操作での誤タップを防ぐ
+                .padding(.bottom, 24)
+
+                BannerAdView()
+                    .frame(width: BannerAdView.size.width, height: BannerAdView.size.height)
             }
-            .padding(.horizontal, 14)
-            .padding(.top, 8)
-            .padding(.bottom, 12)
 
             if model.isPaused { pauseOverlay }
             if model.isGameOver { gameOverOverlay }
