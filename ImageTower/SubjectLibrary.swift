@@ -23,6 +23,15 @@ struct GameStage: Identifiable, Codable, Hashable {
     var assetIDs: [UUID]
     let createdAt: Date
     var updatedAt: Date
+    /// 他の端末や友達に共有したときのコード（CloudKitのレコード名）。未共有ならnil
+    var shareCode: String?
+    var sharedAt: Date?
+
+    /// 共有後にステージを編集していて、アップロードし直す必要があるか
+    var needsShareUpload: Bool {
+        guard shareCode != nil, let sharedAt else { return true }
+        return updatedAt > sharedAt
+    }
 }
 
 @MainActor
@@ -55,6 +64,12 @@ final class SubjectLibrary: ObservableObject {
 
     func images(for stage: GameStage) -> [UIImage] {
         stage.assetIDs.compactMap { asset(withID: $0)?.image }
+    }
+
+    /// `images(for:)` と同じ並びの画像ファイル
+    func imageFileURLs(for stage: GameStage) -> [URL] {
+        stage.assetIDs.compactMap { asset(withID: $0) }
+            .map { assetsDirectory.appendingPathComponent($0.fileName) }
     }
 
     /// その素材を使っているステージ
@@ -162,7 +177,54 @@ final class SubjectLibrary: ObservableObject {
             stages = previousStages
             return false
         }
+        // 共有中のステージは公開をやめる（受け取り済みの端末の手元には残る）
+        if let code = stage.shareCode {
+            Task { try? await StageShareService.shared.delete(code: code) }
+        }
         return true
+    }
+
+    func markShared(stageID: UUID, code: String, at date: Date) {
+        guard let index = stages.firstIndex(where: { $0.id == stageID }) else { return }
+        stages[index].shareCode = code
+        stages[index].sharedAt = date
+        saveStages()
+    }
+
+    func clearShare(stageID: UUID) {
+        guard let index = stages.firstIndex(where: { $0.id == stageID }) else { return }
+        stages[index].shareCode = nil
+        stages[index].sharedAt = nil
+        saveStages()
+    }
+
+    /// 共有コードで受け取ったステージを、素材ごとライブラリに追加する
+    @discardableResult
+    func addReceivedStage(_ received: ReceivedStage) -> UUID? {
+        var newAssets: [SubjectAsset] = []
+        do {
+            try fileManager.createDirectory(at: assetsDirectory, withIntermediateDirectories: true)
+            for (data, image) in zip(received.imageData, received.images) {
+                let id = UUID()
+                let fileName = "\(id.uuidString).png"
+                try data.write(to: assetsDirectory.appendingPathComponent(fileName), options: .atomic)
+                newAssets.append(SubjectAsset(id: id, fileName: fileName, image: image))
+            }
+        } catch {
+            newAssets.forEach { try? fileManager.removeItem(at: assetsDirectory.appendingPathComponent($0.fileName)) }
+            errorMessage = "ステージを追加できませんでした。"
+            return nil
+        }
+
+        assets.append(contentsOf: newAssets)
+        guard let stageID = saveStage(id: nil, name: received.name, assetIDs: newAssets.map(\.id)) else {
+            let newIDs = Set(newAssets.map(\.id))
+            assets.removeAll { newIDs.contains($0.id) }
+            newAssets.forEach { try? fileManager.removeItem(at: assetsDirectory.appendingPathComponent($0.fileName)) }
+            return nil
+        }
+        UserDefaults.standard.set(assets.map(\.fileName), forKey: assetOrderKey)
+        return stageID
     }
 
     func remove(_ asset: SubjectAsset) {

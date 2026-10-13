@@ -30,8 +30,12 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
     private let heldName = "held-item"
     private let aimGuideName = "aim-guide"
     private let platformName = "platform"
+    private static let referenceSceneWidth: CGFloat = 390
     private static let towerTopScreenRatio: CGFloat = 0.55
-    private static let maximumFallSpeed: CGFloat = 520
+    private static let referenceGravity: CGFloat = -10.5
+    private static let referenceMaximumFallSpeed: CGFloat = 520
+    private static let referenceSettledSpeed: CGFloat = 40
+    private static let referenceCameraStep: CGFloat = 4
 
     init(images: [UIImage]) {
         textures = images.map {
@@ -45,7 +49,7 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
         super.init(size: CGSize(width: 390, height: 700))
         scaleMode = .resizeFill
         backgroundColor = ImageTowerTheme.uiSky
-        physicsWorld.gravity = CGVector(dx: 0, dy: -10.5)
+        physicsWorld.gravity = CGVector(dx: 0, dy: Self.referenceGravity)
         physicsWorld.contactDelegate = self
     }
 
@@ -57,16 +61,20 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
     override func didMove(to view: SKView) {
         view.isMultipleTouchEnabled = false
         view.backgroundColor = ImageTowerTheme.uiSky
+        updatePhysicsScale()
         buildWorldIfNeeded()
         prepareNextTurn()
     }
 
     override func didChangeSize(_ oldSize: CGSize) {
+        updatePhysicsScale()
         guard didBuildWorld else { return }
+
+        let oldBaseCameraY = oldSize.height / 2
+        let previousScroll = max(0, gameCamera.position.y - oldBaseCameraY)
+        rescaleItems(from: oldSize)
         gameCamera.position.x = size.width / 2
-        if gameCamera.position.y < size.height / 2 {
-            gameCamera.position.y = size.height / 2
-        }
+        gameCamera.position.y = size.height / 2 + previousScroll * widthRatio(from: oldSize)
         rebuildPlatform()
         rebuildCameraDecoration()
         updateHeldNodePosition()
@@ -105,7 +113,7 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
             towerTop = max(towerTop, sprite.frame.maxY)
         }
         let bottom: CGFloat = 0
-        let top = max(size.height, towerTop + 70)
+        let top = max(size.height, towerTop + scaled(70))
         let totalHeight = top - bottom
 
         // 1回で書き出せるテクスチャの大きさには上限があるため、画面の高さごとに分けて書き出してつなげる
@@ -146,11 +154,11 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
     private func rebuildPlatform() {
         childNode(withName: platformName)?.removeFromParent()
 
-        let width = min(size.width * 0.72, 300)
-        let height: CGFloat = 24
+        let width = size.width * 0.72
+        let height = scaled(24)
         let platform = SKSpriteNode(color: UIColor(red: 0.48, green: 0.28, blue: 0.16, alpha: 1), size: CGSize(width: width, height: height))
         platform.name = platformName
-        platform.position = CGPoint(x: size.width / 2, y: 72)
+        platform.position = CGPoint(x: size.width / 2, y: scaled(72))
         platform.zPosition = 4
         platform.physicsBody = SKPhysicsBody(rectangleOf: platform.size)
         platform.physicsBody?.isDynamic = false
@@ -160,13 +168,19 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
         platform.physicsBody?.collisionBitMask = itemCategory
         platform.physicsBody?.contactTestBitMask = itemCategory
 
-        let top = SKSpriteNode(color: UIColor(red: 0.72, green: 0.46, blue: 0.24, alpha: 1), size: CGSize(width: width + 10, height: 8))
+        let top = SKSpriteNode(
+            color: UIColor(red: 0.72, green: 0.46, blue: 0.24, alpha: 1),
+            size: CGSize(width: width + scaled(10), height: scaled(8))
+        )
         top.position.y = height / 2
         top.zPosition = 1
         platform.addChild(top)
 
-        let leftLeg = SKSpriteNode(color: UIColor(red: 0.38, green: 0.22, blue: 0.13, alpha: 1), size: CGSize(width: 18, height: 44))
-        leftLeg.position = CGPoint(x: -width * 0.32, y: -28)
+        let leftLeg = SKSpriteNode(
+            color: UIColor(red: 0.38, green: 0.22, blue: 0.13, alpha: 1),
+            size: CGSize(width: scaled(18), height: scaled(44))
+        )
+        leftLeg.position = CGPoint(x: -width * 0.32, y: scaled(-28))
         platform.addChild(leftLeg)
         let rightLeg = leftLeg.copy() as! SKSpriteNode
         rightLeg.position.x = width * 0.32
@@ -180,15 +194,15 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
         decoration.name = "camera-decoration"
         decoration.zPosition = -50
 
-        let sun = SKShapeNode(circleOfRadius: 38)
+        let sun = SKShapeNode(circleOfRadius: scaled(38))
         sun.fillColor = UIColor(red: 1, green: 0.82, blue: 0.30, alpha: 0.92)
         sun.strokeColor = .clear
         sun.position = CGPoint(x: size.width * 0.34, y: size.height * 0.32)
         decoration.addChild(sun)
 
-        decoration.addChild(makeCloud(at: CGPoint(x: -size.width * 0.31, y: size.height * 0.27), scale: 1.05))
-        decoration.addChild(makeCloud(at: CGPoint(x: size.width * 0.29, y: size.height * 0.10), scale: 0.72))
-        decoration.addChild(makeCloud(at: CGPoint(x: -size.width * 0.18, y: -size.height * 0.05), scale: 0.52))
+        decoration.addChild(makeCloud(at: CGPoint(x: -size.width * 0.31, y: size.height * 0.27), scale: 1.05 * widthScale))
+        decoration.addChild(makeCloud(at: CGPoint(x: size.width * 0.29, y: size.height * 0.10), scale: 0.72 * widthScale))
+        decoration.addChild(makeCloud(at: CGPoint(x: -size.width * 0.18, y: -size.height * 0.05), scale: 0.52 * widthScale))
         gameCamera.addChild(decoration)
     }
 
@@ -248,8 +262,7 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     private func itemSide() -> CGFloat {
-        let base = min(max(size.width * 0.245, 78), 112)
-        return base * CGFloat.random(in: 0.86...1.08)
+        size.width * 0.245 * CGFloat.random(in: 0.86...1.08)
     }
 
     private var heldHeight: CGFloat {
@@ -266,12 +279,12 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
     private func updateAimGuide(x: CGFloat) {
         childNode(withName: aimGuideName)?.removeFromParent()
         let path = CGMutablePath()
-        path.move(to: CGPoint(x: x, y: heldHeight - 46))
+        path.move(to: CGPoint(x: x, y: heldHeight - scaled(46)))
         path.addLine(to: CGPoint(x: x, y: gameCamera.position.y - size.height * 0.25))
         let line = SKShapeNode(path: path)
         line.name = aimGuideName
         line.strokeColor = UIColor.white.withAlphaComponent(0.62)
-        line.lineWidth = 2
+        line.lineWidth = scaled(2)
         line.zPosition = 2
         addChild(line)
     }
@@ -328,7 +341,19 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
         childNode(withName: aimGuideName)?.removeFromParent()
 
         let imageIndex = node.userData?["imageIndex"] as? Int ?? 0
-        let body = SKPhysicsBody(texture: physicsTextures[imageIndex], size: node.size)
+        let body = makePhysicsBody(imageIndex: imageIndex, size: node.size)
+        node.physicsBody = body
+
+        heldNode = nil
+        latestDroppedNode = node
+        if !didDropOnce {
+            didDropOnce = true
+            onFirstDrop?()
+        }
+    }
+
+    private func makePhysicsBody(imageIndex: Int, size: CGSize) -> SKPhysicsBody {
+        let body = SKPhysicsBody(texture: physicsTextures[imageIndex], size: size)
         body.friction = 0.9
         body.restitution = 0
         body.linearDamping = 0.45
@@ -339,14 +364,7 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
         body.collisionBitMask = itemCategory | platformCategory
         body.contactTestBitMask = itemCategory | platformCategory
         body.usesPreciseCollisionDetection = false
-        node.physicsBody = body
-
-        heldNode = nil
-        latestDroppedNode = node
-        if !didDropOnce {
-            didDropOnce = true
-            onFirstDrop?()
-        }
+        return body
     }
 
     func didBegin(_ contact: SKPhysicsContact) {
@@ -376,8 +394,9 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
         guard !isGameFinished else { return }
 
         // 高所から勢いよくぶつかって周りを弾き飛ばさないよう、落下速度に上限を設ける
-        if let body = latestDroppedNode?.physicsBody, body.velocity.dy < -Self.maximumFallSpeed {
-            body.velocity.dy = -Self.maximumFallSpeed
+        let maximumFallSpeed = Self.referenceMaximumFallSpeed * widthScale
+        if let body = latestDroppedNode?.physicsBody, body.velocity.dy < -maximumFallSpeed {
+            body.velocity.dy = -maximumFallSpeed
         }
 
         var highestPoint: CGFloat = 0
@@ -386,7 +405,7 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
             guard let sprite = node as? SKSpriteNode else { return }
             // 落下中のアイテムでカメラが上がらないよう、着地して落ち着いたものだけで高さを測る
             let isSettled = sprite !== self.latestDroppedNode
-                && abs(sprite.physicsBody?.velocity.dy ?? 0) < 40
+                && abs(sprite.physicsBody?.velocity.dy ?? 0) < Self.referenceSettledSpeed * self.widthScale
             if isSettled {
                 highestPoint = max(highestPoint, sprite.position.y + sprite.size.height * 0.5)
             }
@@ -404,8 +423,57 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
         // タワーの頂上が画面の下から towerTopScreenRatio を超えたぶんだけ、少しずつ上へスクロールする
         let desiredCameraY = max(size.height / 2, highestPoint + size.height * (0.5 - Self.towerTopScreenRatio))
         if desiredCameraY > gameCamera.position.y + 1 {
-            gameCamera.position.y += min((desiredCameraY - gameCamera.position.y) * 0.03, 4)
+            gameCamera.position.y += min(
+                (desiredCameraY - gameCamera.position.y) * 0.03,
+                Self.referenceCameraStep * widthScale
+            )
             updateHeldNodePosition()
+        }
+    }
+
+    /// 390pt幅のiPhoneを基準に、ゲーム内の長さと速度を端末幅へ比例させる。
+    private var widthScale: CGFloat {
+        max(size.width / Self.referenceSceneWidth, 0.01)
+    }
+
+    private func scaled(_ value: CGFloat) -> CGFloat {
+        value * widthScale
+    }
+
+    private func widthRatio(from oldSize: CGSize) -> CGFloat {
+        guard oldSize.width > 0 else { return 1 }
+        return size.width / oldSize.width
+    }
+
+    private func updatePhysicsScale() {
+        physicsWorld.gravity = CGVector(dx: 0, dy: Self.referenceGravity * widthScale)
+    }
+
+    /// 回転やSplit Viewで盤面幅が変わった場合も、積み上げ途中の比率を維持する。
+    private func rescaleItems(from oldSize: CGSize) {
+        let ratio = widthRatio(from: oldSize)
+        guard ratio.isFinite, ratio > 0, abs(ratio - 1) > 0.0001 else { return }
+
+        enumerateChildNodes(withName: itemName) { [weak self] node, _ in
+            guard let self, let sprite = node as? SKSpriteNode else { return }
+            let velocity = sprite.physicsBody?.velocity ?? .zero
+            let angularVelocity = sprite.physicsBody?.angularVelocity ?? 0
+            let wasResting = sprite.physicsBody?.isResting ?? false
+
+            sprite.size = CGSize(width: sprite.size.width * ratio, height: sprite.size.height * ratio)
+            sprite.position = CGPoint(x: sprite.position.x * ratio, y: sprite.position.y * ratio)
+
+            let imageIndex = sprite.userData?["imageIndex"] as? Int ?? 0
+            let body = self.makePhysicsBody(imageIndex: imageIndex, size: sprite.size)
+            body.velocity = CGVector(dx: velocity.dx * ratio, dy: velocity.dy * ratio)
+            body.angularVelocity = angularVelocity
+            body.isResting = wasResting
+            sprite.physicsBody = body
+        }
+
+        if let heldNode {
+            heldNode.size = CGSize(width: heldNode.size.width * ratio, height: heldNode.size.height * ratio)
+            heldNode.position.x *= ratio
         }
     }
 
