@@ -14,6 +14,9 @@ final class TowerGameViewModel: ObservableObject {
     @Published var isGameOver = false
     @Published var isPaused = false
     @Published var hasDroppedOnce = false
+    @Published private(set) var towerSnapshot: UIImage?
+    /// このゲームを始めたときのベスト。超えたら「自己ベスト更新」とする
+    private(set) var bestScoreAtStart: Int
 
     private let bestScoreKey = "imagetower.best-score.v1"
     private let landingFeedback = UIImpactFeedbackGenerator(style: .medium)
@@ -22,15 +25,23 @@ final class TowerGameViewModel: ObservableObject {
 
     init(images: [UIImage]) {
         self.images = images
-        bestScore = UserDefaults.standard.integer(forKey: bestScoreKey)
+        let savedBestScore = UserDefaults.standard.integer(forKey: bestScoreKey)
+        bestScore = savedBestScore
+        bestScoreAtStart = savedBestScore
         scene = TowerGameScene(images: images)
         connectScene()
         landingFeedback.prepare()
         gameOverFeedback.prepare()
     }
 
+    var didUpdateBestScore: Bool {
+        score > 0 && score > bestScoreAtStart
+    }
+
     func restart() {
         score = 0
+        bestScoreAtStart = bestScore
+        towerSnapshot = nil
         isGameOver = false
         isPaused = false
         hasDroppedOnce = false
@@ -72,6 +83,7 @@ final class TowerGameViewModel: ObservableObject {
         scene.onGameOver = { [weak self] in
             guard let self else { return }
             self.persistBestScore()
+            self.towerSnapshot = self.scene.towerSnapshotImage()
             withAnimation(.spring(response: 0.44, dampingFraction: 0.84)) {
                 self.isGameOver = true
             }
@@ -83,10 +95,14 @@ final class TowerGameViewModel: ObservableObject {
 struct TowerGameView: View {
     @StateObject private var model: TowerGameViewModel
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.displayScale) private var displayScale
+    @State private var shareImage: Image?
+    let stageName: String
     let onExit: () -> Void
 
-    init(images: [UIImage], onExit: @escaping () -> Void) {
+    init(images: [UIImage], stageName: String, onExit: @escaping () -> Void) {
         _model = StateObject(wrappedValue: TowerGameViewModel(images: images))
+        self.stageName = stageName
         self.onExit = onExit
     }
 
@@ -113,6 +129,9 @@ struct TowerGameView: View {
             if model.isGameOver { gameOverOverlay }
         }
         .onDisappear { model.persistBestScore() }
+        .onChange(of: model.towerSnapshot) { _, snapshot in
+            shareImage = snapshot.flatMap(makeShareImage)
+        }
         .onChange(of: scenePhase) { _, phase in
             if phase != .active, !model.isPaused, !model.isGameOver {
                 model.togglePause()
@@ -174,6 +193,7 @@ struct TowerGameView: View {
             .frame(height: 58)
             .background(.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
+        .foregroundStyle(ImageTowerTheme.ink)
     }
 
     private func scoreCell(label: String, value: Int, accent: Color) -> some View {
@@ -264,7 +284,7 @@ struct TowerGameView: View {
                         .font(.system(size: 34, weight: .black, design: .rounded))
                     Text("\(model.score) 個つめました")
                         .font(.system(size: 18, weight: .bold, design: .rounded))
-                    Text("BEST  \(model.bestScore)")
+                    Text(model.didUpdateBestScore ? "自己ベスト更新！" : "BEST  \(model.bestScore)")
                         .font(.system(size: 12, weight: .black, design: .rounded))
                         .foregroundStyle(ImageTowerTheme.coral)
                         .padding(.horizontal, 13)
@@ -277,6 +297,22 @@ struct TowerGameView: View {
                     }
                     .buttonStyle(BouncyButtonStyle())
 
+                    if let shareImage {
+                        ShareLink(
+                            item: shareImage,
+                            message: Text(shareMessage),
+                            preview: SharePreview("IMAGE TOWER のスコア", image: shareImage)
+                        ) {
+                            Label("スクショでシェア", systemImage: "square.and.arrow.up")
+                                .font(.system(size: 15, weight: .black, design: .rounded))
+                                .foregroundStyle(ImageTowerTheme.ink)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 48)
+                                .background(ImageTowerTheme.cream, in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+                        }
+                        .buttonStyle(BouncyButtonStyle())
+                    }
+
                     Button("ホームへ", action: onExit)
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundStyle(ImageTowerTheme.secondaryText)
@@ -286,6 +322,101 @@ struct TowerGameView: View {
                 .background(ImageTowerTheme.paper, in: RoundedRectangle(cornerRadius: 32, style: .continuous))
                 .shadow(color: .black.opacity(0.2), radius: 24, y: 10)
             }
+    }
+
+    private var shareMessage: String {
+        let headline = model.didUpdateBestScore ? "自己ベスト更新！" : ""
+        return "\(headline)「\(stageName)」で\(model.score)個つみました！ #ImageTower"
+    }
+
+    /// タワーのスクショにステージ名とスコアを添えたシェア用画像を作る
+    private func makeShareImage(from towerImage: UIImage) -> Image? {
+        let card = ShareCardView(
+            stageName: stageName,
+            score: model.score,
+            isNewBest: model.didUpdateBestScore,
+            towerImage: towerImage
+        )
+        let renderer = ImageRenderer(content: card)
+        // 高く積んで縦長になっても画像が大きくなりすぎないよう、長辺を約6000pxに抑える
+        renderer.scale = min(displayScale, 6000 / card.estimatedHeight)
+        return renderer.uiImage.map { Image(uiImage: $0) }
+    }
+}
+
+/// SNS共有用の画像レイアウト。タワーが高いほど縦長になる
+private struct ShareCardView: View {
+    static let width: CGFloat = 360
+    private static let padding: CGFloat = 24
+
+    let stageName: String
+    let score: Int
+    let isNewBest: Bool
+    let towerImage: UIImage
+
+    private var towerWidth: CGFloat { Self.width - Self.padding * 2 }
+    private var towerHeight: CGFloat {
+        towerWidth * towerImage.size.height / max(towerImage.size.width, 1)
+    }
+
+    /// 見出しやスコアのぶんを含めた、おおよその画像の高さ
+    var estimatedHeight: CGFloat { towerHeight + 190 }
+
+    var body: some View {
+        VStack(spacing: 14) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("IMAGE TOWER")
+                    .font(.system(size: 20, weight: .black, design: .rounded))
+                    .tracking(1.5)
+                Spacer()
+                Text(stageName)
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .foregroundStyle(ImageTowerTheme.secondaryText)
+                    .lineLimit(1)
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                if isNewBest {
+                    Text("自己ベスト更新！")
+                        .font(.system(size: 13, weight: .black, design: .rounded))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                        .background(ImageTowerTheme.coral, in: Capsule())
+                }
+
+                // 桁数が多くても折り返さず、1行に収まるよう縮小する
+                (Text("\(score)")
+                    .font(.system(size: 48, weight: .black, design: .rounded))
+                 + Text(" 個つみました")
+                    .font(.system(size: 18, weight: .black, design: .rounded)))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.3)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Image(uiImage: towerImage)
+                .resizable()
+                .frame(width: towerWidth, height: towerHeight)
+                // 書き出したタワーの画像は背景が透明なので、ゲーム画面と同じ空色を敷く
+                .background(
+                    LinearGradient(
+                        colors: [ImageTowerTheme.skyDeep, ImageTowerTheme.sky],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .stroke(.white, lineWidth: 4)
+                )
+        }
+        .foregroundStyle(ImageTowerTheme.ink)
+        .padding(Self.padding)
+        .frame(width: Self.width)
+        .background(ImageTowerTheme.background)
+        .environment(\.colorScheme, .light)
     }
 }
 

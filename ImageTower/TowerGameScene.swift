@@ -94,6 +94,45 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
         finishGame()
     }
 
+    /// 土台からタワーの頂上までを1枚の画像に書き出す（SNS共有用）
+    /// 画面より高く積んだときは、そのぶん縦長の画像になる
+    func towerSnapshotImage() -> UIImage? {
+        guard let view, size.width > 0, size.height > 0 else { return nil }
+
+        var towerTop: CGFloat = 0
+        enumerateChildNodes(withName: itemName) { node, _ in
+            guard let sprite = node as? SKSpriteNode else { return }
+            towerTop = max(towerTop, sprite.frame.maxY)
+        }
+        let bottom: CGFloat = 0
+        let top = max(size.height, towerTop + 70)
+        let totalHeight = top - bottom
+
+        // 1回で書き出せるテクスチャの大きさには上限があるため、画面の高さごとに分けて書き出してつなげる
+        var slices: [(image: UIImage, minY: CGFloat, height: CGFloat)] = []
+        var sliceMinY = bottom
+        while sliceMinY < top {
+            let sliceHeight = min(size.height, top - sliceMinY)
+            let crop = CGRect(x: 0, y: sliceMinY, width: size.width, height: sliceHeight)
+            guard let texture = view.texture(from: self, crop: crop) else { return nil }
+            slices.append((UIImage(cgImage: texture.cgImage()), sliceMinY, sliceHeight))
+            sliceMinY += sliceHeight
+        }
+
+        let format = UIGraphicsImageRendererFormat()
+        format.opaque = false
+        // 縦長になりすぎても画像が大きくなりすぎないよう、長辺を約6000pxに抑える
+        format.scale = min(view.contentScaleFactor, 6000 / max(totalHeight, size.width))
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: size.width, height: totalHeight), format: format)
+        return renderer.image { _ in
+            for slice in slices {
+                // シーンは上が+Y、画像は上が0なので上下を変換して並べる
+                let y = top - (slice.minY + slice.height)
+                slice.image.draw(in: CGRect(x: 0, y: y, width: size.width, height: slice.height))
+            }
+        }
+    }
+
     private func buildWorldIfNeeded() {
         guard !didBuildWorld else { return }
         didBuildWorld = true

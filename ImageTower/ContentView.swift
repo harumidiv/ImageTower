@@ -9,7 +9,7 @@ struct ContentView: View {
     var body: some View {
         Group {
             if let stage = playingStage {
-                TowerGameView(images: library.images(for: stage)) {
+                TowerGameView(images: library.images(for: stage), stageName: stage.name) {
                     withAnimation(.spring(response: 0.42, dampingFraction: 0.9)) {
                         playingStageID = nil
                     }
@@ -21,6 +21,7 @@ struct ContentView: View {
             }
         }
         .tint(ImageTowerTheme.coral)
+        .preferredColorScheme(.light)
         .sheet(item: $editorRoute) { route in
             SubjectLibraryView(
                 library: library,
