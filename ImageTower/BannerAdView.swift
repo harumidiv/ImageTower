@@ -18,23 +18,10 @@ struct BannerAdView: UIViewRepresentable {
     func makeUIView(context: Context) -> BannerView {
         let bannerView = BannerView(adSize: AdSizeBanner)
         bannerView.adUnitID = Self.adUnitID
-        bannerView.rootViewController = Self.topViewController()
+        bannerView.rootViewController = UIApplication.shared.topViewController()
         bannerView.load(Request())
         return bannerView
     }
 
     func updateUIView(_ bannerView: BannerView, context: Context) {}
-
-    private static func topViewController() -> UIViewController? {
-        let root = UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap(\.windows)
-            .first { $0.isKeyWindow }?
-            .rootViewController
-        var top = root
-        while let presented = top?.presentedViewController {
-            top = presented
-        }
-        return top
-    }
 }

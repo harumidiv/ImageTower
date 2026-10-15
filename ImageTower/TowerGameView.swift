@@ -291,7 +291,9 @@ struct TowerGameView: View {
                         .padding(.vertical, 7)
                         .background(ImageTowerTheme.cream, in: Capsule())
 
-                    Button(action: model.restart) {
+                    Button {
+                        InterstitialAdManager.shared.handleRestart(completion: model.restart)
+                    } label: {
                         Label("もういちど", systemImage: "arrow.clockwise")
                             .primaryGameButton(color: ImageTowerTheme.coral)
                     }
