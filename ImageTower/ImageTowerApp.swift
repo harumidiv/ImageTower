@@ -12,6 +12,8 @@ import SwiftUI
 struct ImageTowerApp: App {
     init() {
         MobileAds.shared.start(completionHandler: nil)
+        // 「もういちど」を押したときにすぐ出せるよう、先に読み込んでおく
+        InterstitialAdManager.shared.load()
     }
 
     var body: some Scene {
