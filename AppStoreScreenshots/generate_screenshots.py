@@ -77,7 +77,7 @@ def paste_with_shadow(canvas: Image.Image, image: Image.Image, xy: tuple[int, in
 def draw_brand(draw: ImageDraw.ImageDraw, canvas: Image.Image) -> None:
     icon = rounded_image(Image.open(APP_ICON), (82, 82), 20)
     brand_font = font(40, bold=True)
-    label = "IMAGE TOWER"
+    label = "のっけタワー"
     bbox = draw.textbbox((0, 0), label, font=brand_font)
     total = icon.width + 20 + (bbox[2] - bbox[0])
     x = (WIDTH - total) // 2

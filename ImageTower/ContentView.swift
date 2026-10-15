@@ -113,7 +113,7 @@ struct ContentView: View {
                     .font(.system(size: 23, weight: .black))
                     .foregroundStyle(ImageTowerTheme.coral)
                     .rotationEffect(.degrees(-8))
-                Text("IMAGE TOWER")
+                Text("のっけタワー")
                     .font(.system(size: 29, weight: .black, design: .rounded))
                     .tracking(1.2)
             }

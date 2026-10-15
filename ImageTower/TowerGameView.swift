@@ -152,7 +152,7 @@ struct TowerGameView: View {
 
             Spacer()
             VStack(spacing: 0) {
-                Text("IMAGE TOWER")
+                Text("のっけタワー")
                     .font(.system(size: 18, weight: .black, design: .rounded))
                     .tracking(1.1)
                 Text("落とさず、どこまで積める？")
@@ -301,7 +301,7 @@ struct TowerGameView: View {
                         ShareLink(
                             item: shareImage,
                             message: Text(shareMessage),
-                            preview: SharePreview("IMAGE TOWER のスコア", image: shareImage)
+                            preview: SharePreview("のっけタワーのスコア", image: shareImage)
                         ) {
                             Label("スクショでシェア", systemImage: "square.and.arrow.up")
                                 .font(.system(size: 15, weight: .black, design: .rounded))
@@ -326,7 +326,7 @@ struct TowerGameView: View {
 
     private var shareMessage: String {
         let headline = model.didUpdateBestScore ? "自己ベスト更新！" : ""
-        return "\(headline)「\(stageName)」で\(model.score)個つみました！ #ImageTower"
+        return "\(headline)「\(stageName)」で\(model.score)個つみました！ #のっけタワー"
     }
 
     /// タワーのスクショにステージ名とスコアを添えたシェア用画像を作る
@@ -365,7 +365,7 @@ private struct ShareCardView: View {
     var body: some View {
         VStack(spacing: 14) {
             HStack(alignment: .firstTextBaseline) {
-                Text("IMAGE TOWER")
+                Text("のっけタワー")
                     .font(.system(size: 20, weight: .black, design: .rounded))
                     .tracking(1.5)
                 Spacer()

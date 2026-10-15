@@ -215,7 +215,7 @@ struct StageShareView: View {
     }
 
     private func shareMessage(_ stage: GameStage, code: String) -> String {
-        "ImageTowerの「\(stage.name)」で遊んでみて！\nコード：\(StageShareCode.formatted(code))\n\(StageShareCode.url(for: code).absoluteString)"
+        "のっけタワーの「\(stage.name)」で遊んでみて！\nコード：\(StageShareCode.formatted(code))\n\(StageShareCode.url(for: code).absoluteString)"
     }
 
     /// 共有済みで編集もしていなければ、アップロードせずにコードを表示する
