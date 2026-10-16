@@ -1,13 +1,32 @@
 import SwiftUI
 import UniformTypeIdentifiers
 import UIKit
+import Vision
 import VisionKit
 
 enum LiftAnalysisStatus: Equatable {
     case analyzing
     case ready
+    case noSubject
     case unsupported
     case failed
+
+    /// 切り抜きできない状態か
+    var isError: Bool {
+        switch self {
+        case .noSubject, .unsupported, .failed: true
+        case .analyzing, .ready: false
+        }
+    }
+
+    var errorMessage: String? {
+        switch self {
+        case .noSubject: String(localized: "被写体が見つからないため、この写真は切り抜きできません")
+        case .unsupported: String(localized: "この端末は被写体の切り抜きに対応していません")
+        case .failed: String(localized: "写真の解析に失敗しました。別の写真をお試しください")
+        case .analyzing, .ready: nil
+        }
+    }
 }
 
 /// 写真の被写体を長押しし、透明背景の画像として受け取る画面。
@@ -86,8 +105,12 @@ struct SubjectLiftEditorView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("写真の被写体を長押し")
                     .font(.system(size: 15, weight: .black, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                 Text("光ったら、指を離さず下へ運びます")
                     .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.7)
                     .foregroundStyle(ImageTowerTheme.secondaryText)
             }
             Spacer()
@@ -114,10 +137,8 @@ struct SubjectLiftEditorView: View {
                     statusBadge
                 }
                 Spacer()
-                if analysisStatus == .unsupported || analysisStatus == .failed {
-                    Text(analysisStatus == .unsupported
-                         ? "この端末は被写体の切り抜きに対応していません"
-                         : "写真の解析に失敗しました。別の写真をお試しください")
+                if let message = analysisStatus.errorMessage {
+                    Text(message)
                         .font(.system(size: 11, weight: .bold, design: .rounded))
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.white)
@@ -147,7 +168,7 @@ struct SubjectLiftEditorView: View {
         case .ready:
             Label("長押しできます", systemImage: "hand.tap.fill")
                 .liftStatusCapsule()
-        case .unsupported, .failed:
+        case .noSubject, .unsupported, .failed:
             Label("切り抜きできません", systemImage: "exclamationmark.triangle.fill")
                 .liftStatusCapsule()
         }
@@ -160,6 +181,8 @@ struct SubjectLiftEditorView: View {
                 .foregroundStyle(ImageTowerTheme.coral)
             Text("長押しした被写体をここへ")
                 .font(.system(size: 12, weight: .bold, design: .rounded))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
                 .foregroundStyle(ImageTowerTheme.secondaryText)
         }
         .frame(height: 18)
@@ -228,7 +251,7 @@ struct SubjectLiftEditorView: View {
         .opacity(liftedSubject == nil ? 0.3 : 1)
     }
 
-    private func loadingOverlay(text: String) -> some View {
+    private func loadingOverlay(text: LocalizedStringKey) -> some View {
         Color.black.opacity(0.22)
             .ignoresSafeArea()
             .overlay {
@@ -340,15 +363,31 @@ struct LiftablePhotoView: UIViewRepresentable {
                     interaction.analysis = analysis
                     interaction.preferredInteractionTypes = [.imageSubject]
                     interaction.setContentsRectNeedsUpdate()
-                    _ = await interaction.subjects
+                    let hasSubject = await Self.detectsSubject(in: image)
                     guard !Task.isCancelled else { return }
-                    onStatusChange(.ready)
+                    onStatusChange(hasSubject ? .ready : .noSubject)
                 } catch is CancellationError {
                     return
                 } catch {
                     onStatusChange(.failed)
                 }
             }
+        }
+
+        /// 画面に表示されていない写真でも判定できるよう、interaction ではなく Vision で被写体の有無を調べる。
+        /// 判定自体に失敗した場合は長押しを妨げないよう「被写体あり」とみなす。
+        nonisolated private static func detectsSubject(in image: UIImage) async -> Bool {
+            guard let cgImage = image.cgImage else { return true }
+            return await Task.detached(priority: .userInitiated) {
+                let request = VNGenerateForegroundInstanceMaskRequest()
+                let handler = VNImageRequestHandler(cgImage: cgImage)
+                do {
+                    try handler.perform([request])
+                } catch {
+                    return true
+                }
+                return request.results?.contains { !$0.allInstances.isEmpty } ?? false
+            }.value
         }
     }
 }
@@ -425,6 +464,8 @@ struct SubjectDropReceiver: UIViewRepresentable {
 private extension View {
     func liftStatusCapsule() -> some View {
         font(.system(size: 11, weight: .bold, design: .rounded))
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
             .foregroundStyle(.white)
             .padding(.horizontal, 11)
             .padding(.vertical, 7)

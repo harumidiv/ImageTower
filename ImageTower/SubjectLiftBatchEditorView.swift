@@ -111,8 +111,12 @@ struct SubjectLiftBatchEditorView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("被写体を長押しして下へ")
                     .font(.system(size: 15, weight: .black, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                 Text("横スワイプで写真を切り替えられます")
                     .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                     .foregroundStyle(ImageTowerTheme.secondaryText)
             }
 
@@ -168,8 +172,8 @@ struct SubjectLiftBatchEditorView: View {
                 }
                 Spacer()
 
-                if status == .unsupported || status == .failed {
-                    analysisMessage(status)
+                if let message = status.errorMessage {
+                    analysisMessage(message)
                 }
             }
             .padding(13)
@@ -224,12 +228,24 @@ struct SubjectLiftBatchEditorView: View {
                                         .background(.green, in: Circle())
                                         .overlay(Circle().stroke(.white, lineWidth: 2))
                                         .offset(x: 4, y: -4)
+                                } else if analysisStatuses[photo.id]?.isError == true {
+                                    Image(systemName: "exclamationmark")
+                                        .font(.system(size: 9, weight: .black))
+                                        .foregroundStyle(.white)
+                                        .frame(width: 18, height: 18)
+                                        .background(.red, in: Circle())
+                                        .overlay(Circle().stroke(.white, lineWidth: 2))
+                                        .offset(x: 4, y: -4)
                                 }
                             }
                         }
                         .buttonStyle(.plain)
                         .id(photo.id)
-                        .accessibilityLabel("\(index + 1)枚目")
+                        .accessibilityLabel(
+                            analysisStatuses[photo.id]?.isError == true
+                                ? "\(index + 1)枚目、切り抜きできません"
+                                : "\(index + 1)枚目"
+                        )
                     }
                 }
                 .padding(.horizontal, 4)
@@ -258,16 +274,14 @@ struct SubjectLiftBatchEditorView: View {
         case .ready:
             Label("長押しできます", systemImage: "hand.tap.fill")
                 .batchStatusCapsule()
-        case .unsupported, .failed:
+        case .noSubject, .unsupported, .failed:
             Label("切り抜きできません", systemImage: "exclamationmark.triangle.fill")
                 .batchStatusCapsule()
         }
     }
 
-    private func analysisMessage(_ status: LiftAnalysisStatus) -> some View {
-        Text(status == .unsupported
-             ? "この端末は被写体の切り抜きに対応していません"
-             : "写真の解析に失敗しました")
+    private func analysisMessage(_ message: String) -> some View {
+        Text(message)
             .font(.system(size: 12, weight: .bold, design: .rounded))
             .multilineTextAlignment(.center)
             .foregroundStyle(.white)
@@ -303,6 +317,8 @@ struct SubjectLiftBatchEditorView: View {
                     .foregroundStyle(ImageTowerTheme.orange)
                 Text("同じ写真から複数追加できます")
                     .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                     .foregroundStyle(ImageTowerTheme.secondaryText)
             }
 
@@ -367,7 +383,7 @@ struct SubjectLiftBatchEditorView: View {
             let destinationPhotoID = currentPhoto.id
             SubjectDropReceiver(isTargeted: $isDropTargeted) { image in
                 guard totalLiftedSubjectCount < maximumCutouts else {
-                    library.errorMessage = "切り抜きは最大\(maximumCutouts)個まで追加できます。"
+                    library.errorMessage = String(localized: "切り抜きは最大\(maximumCutouts)個まで追加できます。")
                     return
                 }
                 liftedSubjects[destinationPhotoID, default: []].append(BatchLiftedSubject(image: image))
@@ -428,7 +444,7 @@ struct SubjectLiftBatchEditorView: View {
         isSaving = true
         Task {
             for (index, item) in pending.enumerated() {
-                savingProgress = "\(index + 1) / \(pending.count)個"
+                savingProgress = String(localized: "\(index + 1) / \(pending.count)個")
                 guard let assetID = await library.addLiftedSubject(item.subject.image) else {
                     isSaving = false
                     savingProgress = ""
@@ -459,6 +475,8 @@ private struct BatchLiftedSubject: Identifiable {
 private extension View {
     func batchStatusCapsule() -> some View {
         font(.system(size: 11, weight: .bold, design: .rounded))
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
             .foregroundStyle(.white)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)

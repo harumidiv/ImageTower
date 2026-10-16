@@ -148,6 +148,8 @@ struct StageShareView: View {
             ShareLink(item: shareMessage(stage, code: code)) {
                 Label("コードを送る", systemImage: "paperplane.fill")
                     .font(.system(size: 15, weight: .black, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
@@ -162,6 +164,8 @@ struct StageShareView: View {
             } label: {
                 Label(didCopy ? "コピーしました" : "コードをコピー", systemImage: didCopy ? "checkmark" : "doc.on.doc")
                     .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                     .foregroundStyle(ImageTowerTheme.ink)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
@@ -202,7 +206,7 @@ struct StageShareView: View {
         .background(.white, in: RoundedRectangle(cornerRadius: 25, style: .continuous))
     }
 
-    private func primaryButton(_ title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+    private func primaryButton(_ title: LocalizedStringKey, systemImage: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Label(title, systemImage: systemImage)
                 .font(.system(size: 15, weight: .black, design: .rounded))
@@ -215,7 +219,9 @@ struct StageShareView: View {
     }
 
     private func shareMessage(_ stage: GameStage, code: String) -> String {
-        "のっけタワーの「\(stage.name)」で遊んでみて！\nコード：\(StageShareCode.formatted(code))\n\(StageShareCode.url(for: code).absoluteString)"
+        let invitation = String(localized: "のっけタワーの「\(stage.name)」で遊んでみて！")
+        let codeLine = String(localized: "コード：\(StageShareCode.formatted(code))")
+        return "\(invitation)\n\(codeLine)\n\(StageShareCode.url(for: code).absoluteString)"
     }
 
     /// 共有済みで編集もしていなければ、アップロードせずにコードを表示する
