@@ -9,11 +9,11 @@ enum SubjectProcessingError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .unreadableImage:
-            return "画像を読み込めませんでした。別の写真でお試しください。"
+            return String(localized: "画像を読み込めませんでした。別の写真でお試しください。")
         case .subjectNotFound:
-            return "透明な背景の切り抜き画像が見つかりませんでした。写真の被写体を長押しして、下のエリアへ運んでください。"
+            return String(localized: "透明な背景の切り抜き画像が見つかりませんでした。写真の被写体を長押しして、下のエリアへ運んでください。")
         case .renderFailed:
-            return "切り抜き画像を作成できませんでした。"
+            return String(localized: "切り抜き画像を作成できませんでした。")
         }
     }
 }

@@ -134,6 +134,8 @@ struct ContentView: View {
                         .foregroundStyle(ImageTowerTheme.secondaryText)
                     Text("ステージ")
                         .font(.system(size: 21, weight: .black, design: .rounded))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
                 }
                 Spacer()
                 Button {
@@ -141,6 +143,7 @@ struct ContentView: View {
                 } label: {
                     Label("受け取る", systemImage: "tray.and.arrow.down.fill")
                         .font(.system(size: 13, weight: .black, design: .rounded))
+                        .fixedSize()
                         .foregroundStyle(ImageTowerTheme.ink)
                         .padding(.horizontal, 14)
                         .frame(height: 38)
@@ -153,6 +156,7 @@ struct ContentView: View {
                 } label: {
                     Label("作る", systemImage: "plus")
                         .font(.system(size: 13, weight: .black, design: .rounded))
+                        .fixedSize()
                         .foregroundStyle(.white)
                         .padding(.horizontal, 14)
                         .frame(height: 38)

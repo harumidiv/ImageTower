@@ -21,9 +21,9 @@ enum LiftAnalysisStatus: Equatable {
 
     var errorMessage: String? {
         switch self {
-        case .noSubject: "被写体が見つからないため、この写真は切り抜きできません"
-        case .unsupported: "この端末は被写体の切り抜きに対応していません"
-        case .failed: "写真の解析に失敗しました。別の写真をお試しください"
+        case .noSubject: String(localized: "被写体が見つからないため、この写真は切り抜きできません")
+        case .unsupported: String(localized: "この端末は被写体の切り抜きに対応していません")
+        case .failed: String(localized: "写真の解析に失敗しました。別の写真をお試しください")
         case .analyzing, .ready: nil
         }
     }
@@ -105,8 +105,12 @@ struct SubjectLiftEditorView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("写真の被写体を長押し")
                     .font(.system(size: 15, weight: .black, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                 Text("光ったら、指を離さず下へ運びます")
                     .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.7)
                     .foregroundStyle(ImageTowerTheme.secondaryText)
             }
             Spacer()
@@ -177,6 +181,8 @@ struct SubjectLiftEditorView: View {
                 .foregroundStyle(ImageTowerTheme.coral)
             Text("長押しした被写体をここへ")
                 .font(.system(size: 12, weight: .bold, design: .rounded))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
                 .foregroundStyle(ImageTowerTheme.secondaryText)
         }
         .frame(height: 18)
@@ -245,7 +251,7 @@ struct SubjectLiftEditorView: View {
         .opacity(liftedSubject == nil ? 0.3 : 1)
     }
 
-    private func loadingOverlay(text: String) -> some View {
+    private func loadingOverlay(text: LocalizedStringKey) -> some View {
         Color.black.opacity(0.22)
             .ignoresSafeArea()
             .overlay {
@@ -458,6 +464,8 @@ struct SubjectDropReceiver: UIViewRepresentable {
 private extension View {
     func liftStatusCapsule() -> some View {
         font(.system(size: 11, weight: .bold, design: .rounded))
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
             .foregroundStyle(.white)
             .padding(.horizontal, 11)
             .padding(.vertical, 7)

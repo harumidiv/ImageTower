@@ -223,6 +223,9 @@ struct TowerGameView: View {
                 if !model.hasDroppedOnce {
                     Label("左右に動かして指を離すと落下・右下で回転", systemImage: "hand.draw.fill")
                         .font(.system(size: 12, weight: .black, design: .rounded))
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.7)
+                        .multilineTextAlignment(.center)
                         .foregroundStyle(ImageTowerTheme.ink)
                         .padding(.horizontal, 15)
                         .padding(.vertical, 10)
@@ -307,6 +310,8 @@ struct TowerGameView: View {
                         ) {
                             Label("スクショでシェア", systemImage: "square.and.arrow.up")
                                 .font(.system(size: 15, weight: .black, design: .rounded))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
                                 .foregroundStyle(ImageTowerTheme.ink)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 48)
@@ -327,8 +332,9 @@ struct TowerGameView: View {
     }
 
     private var shareMessage: String {
-        let headline = model.didUpdateBestScore ? "自己ベスト更新！" : ""
-        return "\(headline)「\(stageName)」で\(model.score)個つみました！ #のっけタワー"
+        let headline = model.didUpdateBestScore ? String(localized: "自己ベスト更新！") : ""
+        let result = String(localized: "「\(stageName)」で\(model.score)個つみました！ #のっけタワー")
+        return headline + result
     }
 
     /// タワーのスクショにステージ名とスコアを添えたシェア用画像を作る

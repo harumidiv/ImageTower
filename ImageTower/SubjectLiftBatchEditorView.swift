@@ -111,8 +111,12 @@ struct SubjectLiftBatchEditorView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("被写体を長押しして下へ")
                     .font(.system(size: 15, weight: .black, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                 Text("横スワイプで写真を切り替えられます")
                     .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                     .foregroundStyle(ImageTowerTheme.secondaryText)
             }
 
@@ -313,6 +317,8 @@ struct SubjectLiftBatchEditorView: View {
                     .foregroundStyle(ImageTowerTheme.orange)
                 Text("同じ写真から複数追加できます")
                     .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                     .foregroundStyle(ImageTowerTheme.secondaryText)
             }
 
@@ -377,7 +383,7 @@ struct SubjectLiftBatchEditorView: View {
             let destinationPhotoID = currentPhoto.id
             SubjectDropReceiver(isTargeted: $isDropTargeted) { image in
                 guard totalLiftedSubjectCount < maximumCutouts else {
-                    library.errorMessage = "切り抜きは最大\(maximumCutouts)個まで追加できます。"
+                    library.errorMessage = String(localized: "切り抜きは最大\(maximumCutouts)個まで追加できます。")
                     return
                 }
                 liftedSubjects[destinationPhotoID, default: []].append(BatchLiftedSubject(image: image))
@@ -438,7 +444,7 @@ struct SubjectLiftBatchEditorView: View {
         isSaving = true
         Task {
             for (index, item) in pending.enumerated() {
-                savingProgress = "\(index + 1) / \(pending.count)個"
+                savingProgress = String(localized: "\(index + 1) / \(pending.count)個")
                 guard let assetID = await library.addLiftedSubject(item.subject.image) else {
                     isSaving = false
                     savingProgress = ""
@@ -469,6 +475,8 @@ private struct BatchLiftedSubject: Identifiable {
 private extension View {
     func batchStatusCapsule() -> some View {
         font(.system(size: 11, weight: .bold, design: .rounded))
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
             .foregroundStyle(.white)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
