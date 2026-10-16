@@ -168,8 +168,8 @@ struct SubjectLiftBatchEditorView: View {
                 }
                 Spacer()
 
-                if status == .unsupported || status == .failed {
-                    analysisMessage(status)
+                if let message = status.errorMessage {
+                    analysisMessage(message)
                 }
             }
             .padding(13)
@@ -224,12 +224,24 @@ struct SubjectLiftBatchEditorView: View {
                                         .background(.green, in: Circle())
                                         .overlay(Circle().stroke(.white, lineWidth: 2))
                                         .offset(x: 4, y: -4)
+                                } else if analysisStatuses[photo.id]?.isError == true {
+                                    Image(systemName: "exclamationmark")
+                                        .font(.system(size: 9, weight: .black))
+                                        .foregroundStyle(.white)
+                                        .frame(width: 18, height: 18)
+                                        .background(.red, in: Circle())
+                                        .overlay(Circle().stroke(.white, lineWidth: 2))
+                                        .offset(x: 4, y: -4)
                                 }
                             }
                         }
                         .buttonStyle(.plain)
                         .id(photo.id)
-                        .accessibilityLabel("\(index + 1)枚目")
+                        .accessibilityLabel(
+                            analysisStatuses[photo.id]?.isError == true
+                                ? "\(index + 1)枚目、切り抜きできません"
+                                : "\(index + 1)枚目"
+                        )
                     }
                 }
                 .padding(.horizontal, 4)
@@ -258,16 +270,14 @@ struct SubjectLiftBatchEditorView: View {
         case .ready:
             Label("長押しできます", systemImage: "hand.tap.fill")
                 .batchStatusCapsule()
-        case .unsupported, .failed:
+        case .noSubject, .unsupported, .failed:
             Label("切り抜きできません", systemImage: "exclamationmark.triangle.fill")
                 .batchStatusCapsule()
         }
     }
 
-    private func analysisMessage(_ status: LiftAnalysisStatus) -> some View {
-        Text(status == .unsupported
-             ? "この端末は被写体の切り抜きに対応していません"
-             : "写真の解析に失敗しました")
+    private func analysisMessage(_ message: String) -> some View {
+        Text(message)
             .font(.system(size: 12, weight: .bold, design: .rounded))
             .multilineTextAlignment(.center)
             .foregroundStyle(.white)
