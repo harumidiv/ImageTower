@@ -112,19 +112,28 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
             guard let sprite = node as? SKSpriteNode else { return }
             towerTop = max(towerTop, sprite.frame.maxY)
         }
-        let bottom: CGFloat = 0
-        let top = max(size.height, towerTop + scaled(70))
-        let totalHeight = top - bottom
+        let screenHeight = size.height
+        let top = max(screenHeight, towerTop + scaled(70))
+        let totalHeight = top
 
-        // 1回で書き出せるテクスチャの大きさには上限があるため、画面の高さごとに分けて書き出してつなげる
-        var slices: [(image: UIImage, minY: CGFloat, height: CGFloat)] = []
-        var sliceMinY = bottom
-        while sliceMinY < top {
-            let sliceHeight = min(size.height, top - sliceMinY)
-            let crop = CGRect(x: 0, y: sliceMinY, width: size.width, height: sliceHeight)
-            guard let texture = view.texture(from: self, crop: crop) else { return nil }
-            slices.append((UIImage(cgImage: texture.cgImage()), sliceMinY, sliceHeight))
-            sliceMinY += sliceHeight
+        // シーンはカメラに映っている範囲しか書き出せないため、カメラを1画面ずつ動かして撮影してつなげる
+        // 一番上の1枚は頂上にそろえるので、その下の1枚と重なることがある（同じ絵なので問題ない）
+        let originalCameraPosition = gameCamera.position
+        let decoration = gameCamera.childNode(withName: "camera-decoration")
+        defer {
+            gameCamera.position = originalCameraPosition
+            decoration?.isHidden = false
+        }
+
+        let sliceCount = Int((top / screenHeight).rounded(.up))
+        var slices: [(image: UIImage, minY: CGFloat)] = []
+        for index in 0..<sliceCount {
+            let minY = min(CGFloat(index) * screenHeight, top - screenHeight)
+            gameCamera.position = CGPoint(x: size.width / 2, y: minY + screenHeight / 2)
+            // 太陽や雲はカメラに付いているので、つなぎ目ごとに繰り返さないよう一番上の1枚だけに出す
+            decoration?.isHidden = index < sliceCount - 1
+            guard let texture = view.texture(from: self) else { return nil }
+            slices.append((UIImage(cgImage: texture.cgImage()), minY))
         }
 
         let format = UIGraphicsImageRendererFormat()
@@ -135,8 +144,8 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
         return renderer.image { _ in
             for slice in slices {
                 // シーンは上が+Y、画像は上が0なので上下を変換して並べる
-                let y = top - (slice.minY + slice.height)
-                slice.image.draw(in: CGRect(x: 0, y: y, width: size.width, height: slice.height))
+                let y = top - (slice.minY + screenHeight)
+                slice.image.draw(in: CGRect(x: 0, y: y, width: size.width, height: screenHeight))
             }
         }
     }
