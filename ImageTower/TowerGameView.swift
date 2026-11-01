@@ -14,6 +14,8 @@ final class TowerGameViewModel: ObservableObject {
     @Published var isGameOver = false
     @Published var isPaused = false
     @Published var hasDroppedOnce = false
+    /// リワード広告と引き換えに、次のアイテムを選んでいる最中か
+    @Published private(set) var isChoosingNext = false
     @Published private(set) var towerSnapshot: UIImage?
     /// このゲームを始めたときのベスト。超えたら「自己ベスト更新」とする
     private(set) var bestScoreAtStart: Int
@@ -58,6 +60,37 @@ final class TowerGameViewModel: ObservableObject {
     func rotateHeldItem() {
         guard !isPaused, !isGameOver, scene.rotateHeldItem() else { return }
         rotateFeedback.selectionChanged()
+    }
+
+    /// 選べるアイテムが2種類以上あるときだけ、次のアイテムを変更できる
+    var canChooseNext: Bool {
+        images.count > 1 && !isPaused && !isGameOver
+    }
+
+    func beginChoosingNext() {
+        guard canChooseNext else { return }
+        RewardedAdManager.shared.load()
+        // 選んでいる間に積んだアイテムが崩れないよう、ゲームを止めておく
+        scene.isPaused = true
+        withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) { isChoosingNext = true }
+    }
+
+    func cancelChoosingNext() {
+        withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) { isChoosingNext = false }
+        scene.isPaused = isPaused
+    }
+
+    /// リワード広告を最後まで見てもらえたら、次のアイテムを選んだものに差し替える
+    func chooseNext(imageIndex: Int) {
+        guard isChoosingNext else { return }
+        RewardedAdManager.shared.present { [weak self] didEarnReward in
+            guard let self else { return }
+            if didEarnReward {
+                self.scene.replaceNextImage(with: imageIndex)
+                self.rotateFeedback.selectionChanged()
+            }
+            self.cancelChoosingNext()
+        }
     }
 
     func persistBestScore() {
@@ -125,6 +158,7 @@ struct TowerGameView: View {
                     .frame(width: BannerAdView.size.width, height: BannerAdView.size.height)
             }
 
+            if model.isChoosingNext { chooseNextOverlay }
             if model.isPaused { pauseOverlay }
             if model.isGameOver { gameOverOverlay }
         }
@@ -133,7 +167,8 @@ struct TowerGameView: View {
             shareImage = snapshot.flatMap(makeShareImage)
         }
         .onChange(of: scenePhase) { _, phase in
-            if phase != .active, !model.isPaused, !model.isGameOver {
+            // アイテム選択中はすでに止めているので、一時停止画面を重ねない
+            if phase != .active, !model.isPaused, !model.isGameOver, !model.isChoosingNext {
                 model.togglePause()
             }
         }
@@ -178,6 +213,14 @@ struct TowerGameView: View {
             scoreCell(label: "SCORE", value: model.score, accent: ImageTowerTheme.coral)
             scoreCell(label: "BEST", value: model.bestScore, accent: ImageTowerTheme.skyDeep)
 
+            nextCell
+        }
+        .foregroundStyle(ImageTowerTheme.ink)
+    }
+
+    /// タップすると、リワード広告と引き換えに次のアイテムを選べる
+    private var nextCell: some View {
+        Button(action: model.beginChoosingNext) {
             HStack(spacing: 8) {
                 Text("NEXT")
                     .font(.system(size: 9, weight: .black, design: .rounded))
@@ -192,8 +235,34 @@ struct TowerGameView: View {
             .frame(maxWidth: .infinity)
             .frame(height: 58)
             .background(.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(alignment: .topTrailing) {
+                if model.images.count > 1 {
+                    Image(systemName: "arrow.triangle.2.circlepath")
+                        .font(.system(size: 9, weight: .black))
+                        .foregroundStyle(.white)
+                        .frame(width: 20, height: 20)
+                        .background(ImageTowerTheme.coral, in: Circle())
+                        .offset(x: 4, y: -4)
+                }
+            }
         }
-        .foregroundStyle(ImageTowerTheme.ink)
+        .buttonStyle(BouncyButtonStyle())
+        .disabled(!model.canChooseNext)
+        .accessibilityLabel("次のアイテムを変更")
+    }
+
+    private var chooseNextOverlay: some View {
+        Color.black.opacity(0.32)
+            .ignoresSafeArea()
+            .onTapGesture(perform: model.cancelChoosingNext)
+            .overlay {
+                ChooseNextPanel(
+                    images: model.images,
+                    currentIndex: model.nextImageIndex,
+                    onChoose: model.chooseNext(imageIndex:),
+                    onCancel: model.cancelChoosingNext
+                )
+            }
     }
 
     private func scoreCell(label: String, value: Int, accent: Color) -> some View {
@@ -349,6 +418,98 @@ struct TowerGameView: View {
         // 高く積んで縦長になっても画像が大きくなりすぎないよう、長辺を約6000pxに抑える
         renderer.scale = min(displayScale, 6000 / card.estimatedHeight)
         return renderer.uiImage.map { Image(uiImage: $0) }
+    }
+}
+
+/// リワード広告と引き換えに、次に落ちるアイテムを選ぶパネル
+private struct ChooseNextPanel: View {
+    let images: [UIImage]
+    let currentIndex: Int
+    let onChoose: (Int) -> Void
+    let onCancel: () -> Void
+
+    @ObservedObject private var rewardedAd = RewardedAdManager.shared
+    @State private var selectedIndex: Int?
+
+    private let columns = [GridItem(.adaptive(minimum: 64), spacing: 10)]
+
+    var body: some View {
+        VStack(spacing: 14) {
+            Text("次のアイテムを選ぶ")
+                .font(.system(size: 20, weight: .black, design: .rounded))
+            Text("広告を見ると、選んだアイテムを次に落とせます")
+                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .foregroundStyle(ImageTowerTheme.secondaryText)
+                .multilineTextAlignment(.center)
+
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 10) {
+                    ForEach(images.indices, id: \.self) { index in
+                        itemCell(index: index)
+                    }
+                }
+                .padding(4)
+            }
+            .frame(maxHeight: 260)
+
+            Button {
+                if let selectedIndex { onChoose(selectedIndex) }
+            } label: {
+                Label(
+                    rewardedAd.isReady ? "広告を見て変更" : "広告を準備中…",
+                    systemImage: "play.rectangle.fill"
+                )
+                .font(.system(size: 16, weight: .black, design: .rounded))
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 54)
+                .background(
+                    ImageTowerTheme.coral.opacity(isChooseEnabled ? 1 : 0.4),
+                    in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+                )
+            }
+            .buttonStyle(BouncyButtonStyle())
+            .disabled(!isChooseEnabled)
+
+            Button("やめる", action: onCancel)
+                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .foregroundStyle(ImageTowerTheme.secondaryText)
+        }
+        .foregroundStyle(ImageTowerTheme.ink)
+        .padding(24)
+        .frame(maxWidth: 340)
+        .background(ImageTowerTheme.paper, in: RoundedRectangle(cornerRadius: 32, style: .continuous))
+        .shadow(color: .black.opacity(0.2), radius: 24, y: 10)
+        .padding(.horizontal, 16)
+    }
+
+    private var isChooseEnabled: Bool {
+        selectedIndex != nil && rewardedAd.isReady
+    }
+
+    private func itemCell(index: Int) -> some View {
+        let isSelected = selectedIndex == index
+        let isCurrent = index == currentIndex
+        return Button {
+            selectedIndex = index
+        } label: {
+            Image(uiImage: images[index])
+                .resizable()
+                .scaledToFit()
+                .padding(8)
+                .frame(width: 64, height: 64)
+                .background(ImageTowerTheme.cream, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(isSelected ? ImageTowerTheme.coral : .clear, lineWidth: 3)
+                )
+                .opacity(isCurrent ? 0.35 : 1)
+        }
+        .buttonStyle(BouncyButtonStyle())
+        // いま NEXT にあるものを選んでも変わらないので選べなくする
+        .disabled(isCurrent)
+        .accessibilityLabel("アイテム\(index + 1)")
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 

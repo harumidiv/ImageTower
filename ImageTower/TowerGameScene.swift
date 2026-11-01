@@ -98,6 +98,15 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
         prepareNextTurn()
     }
 
+    /// 次に落ちるアイテム（NEXT に表示中のもの）を差し替える
+    func replaceNextImage(with imageIndex: Int) {
+        guard !isGameFinished, textures.indices.contains(imageIndex), !upcomingIndices.isEmpty else { return }
+        upcomingIndices[0] = imageIndex
+        // そのさらに次のアイテムが同じ画像の連続にならないよう、選んだものを直前の出現として扱う
+        lastSpawnIndex = imageIndex
+        onNextImage?(imageIndex)
+    }
+
     func endGame() {
         finishGame()
     }
@@ -363,10 +372,12 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
 
     private func makePhysicsBody(imageIndex: Int, size: CGSize) -> SKPhysicsBody {
         let body = SKPhysicsBody(texture: physicsTextures[imageIndex], size: size)
-        body.friction = 0.9
+        // SpriteKit の friction は 0〜1 が有効範囲のため上限の 1 にし、
+        // 減衰を強めて積んだアイテムが滑ったり転がったりしにくくする
+        body.friction = 1.0
         body.restitution = 0
-        body.linearDamping = 0.45
-        body.angularDamping = 1.4
+        body.linearDamping = 0.8
+        body.angularDamping = 2.5
         body.density = 0.95
         body.allowsRotation = true
         body.categoryBitMask = itemCategory
