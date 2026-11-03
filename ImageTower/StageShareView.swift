@@ -381,12 +381,16 @@ struct StageReceiveView: View {
 
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
                 ForEach(Array(received.images.enumerated()), id: \.offset) { _, image in
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .padding(6)
+                    // 正方形のセルを先に確定させ、その中に画像全体を収める（縦長・横長でも切れないように）
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(ImageTowerTheme.cream)
                         .aspectRatio(1, contentMode: .fit)
-                        .background(ImageTowerTheme.cream, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .overlay {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFit()
+                                .padding(6)
+                        }
                 }
             }
 
