@@ -1,6 +1,66 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Take a Photo" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カメラで撮る"
+          }
+        }
+      }
+    },
+    "Camera Access" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カメラへのアクセス"
+          }
+        }
+      }
+    },
+    "Open Settings" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定を開く"
+          }
+        }
+      }
+    },
+    "Allow camera access in Settings to take photos for this stage." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ステージ用の写真を撮るには、「設定」でカメラへのアクセスを許可してください。"
+          }
+        }
+      }
+    },
+    "Camera access is restricted on this device." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この端末ではカメラへのアクセスが制限されています。"
+          }
+        }
+      }
+    },
+    "The camera is unavailable on this device." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この端末ではカメラを利用できません。"
+          }
+        }
+      }
+    },
     "Achievements" : {
       "localizations" : {
         "ja" : {
@@ -10623,386 +10683,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "此裝置不支援主體去背"
-          }
-        }
-      }
-    },
-    "コピーされた画像が見つかりません。写真アプリで被写体を長押しして「コピー」してから、もう一度お試しください。" : {
-      "localizations" : {
-        "ca" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No s'ha trobat cap imatge copiada. A Fotos, mantén premut el subjecte, toca «Copia» i torna-ho a provar."
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zkopírovaný obrázek nebyl nalezen. V aplikaci Fotky podrž prst na objektu, zvol „Kopírovat“ a zkus to znovu."
-          }
-        },
-        "da" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Intet kopieret billede fundet. Tryk længe på et motiv i Fotos, vælg »Kopiér«, og prøv igen."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kein kopiertes Bild gefunden. Halte in Fotos ein Motiv gedrückt, tippe auf „Kopieren“ und versuch es erneut."
-          }
-        },
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Δεν βρέθηκε αντιγραμμένη εικόνα. Στις Φωτογραφίες, άγγιξε παρατεταμένα το θέμα, πάτα «Αντιγραφή» και δοκίμασε ξανά."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No copied image found. In Photos, touch and hold a subject, tap Copy, then try again."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No se encontró ninguna imagen copiada. En Fotos, mantén pulsado el sujeto, toca «Copiar» e inténtalo de nuevo."
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kopioitua kuvaa ei löytynyt. Paina kohdetta pitkään Kuvat-apissa, valitse ”Kopioi” ja yritä uudelleen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aucune image copiée. Dans Photos, maintiens le doigt sur un sujet, touche « Copier », puis réessaie."
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "कॉपी की गई इमेज नहीं मिली। तस्वीरें ऐप में विषय को स्पर्श करके रखें, “कॉपी करें” चुनें, फिर कोशिश करें।"
-          }
-        },
-        "hr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nema kopirane slike. U aplikaciji Foto dugo pritisni objekt, odaberi „Kopiraj“ i pokušaj ponovno."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nem található másolt kép. Tartsd lenyomva a témát a Fotók appban, válaszd a „Másolás” lehetőséget, majd próbáld újra."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gambar yang disalin tidak ditemukan. Di app Foto, sentuh lama subjek, pilih “Salin”, lalu coba lagi."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nessuna immagine copiata. Nell'app Foto, tieni premuto il soggetto, tocca «Copia» e riprova."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "コピーされた画像が見つかりません。写真アプリで被写体を長押しして「コピー」してから、もう一度お試しください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "복사된 이미지가 없어요. 사진 앱에서 피사체를 길게 터치하고 ‘복사하기’를 누른 다음 다시 시도해 주세요."
-          }
-        },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Imej yang disalin tidak ditemui. Dalam app Foto, sentuh dan tahan subjek, pilih “Salin”, kemudian cuba lagi."
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fant ikke noe kopiert bilde. Hold inne et motiv i Bilder, trykk på «Kopier» og prøv igjen."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Geen gekopieerde afbeelding gevonden. Houd in de Foto's-app het onderwerp ingedrukt, tik op ‘Kopieer’ en probeer het opnieuw."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nie znaleziono skopiowanego obrazka. W aplikacji Zdjęcia przytrzymaj obiekt, wybierz „Kopiuj” i spróbuj ponownie."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nenhuma imagem copiada encontrada. No app Fotos, toque e segure o objeto, toque em “Copiar” e tente de novo."
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nenhuma imagem copiada encontrada. Na app Fotografias, mantém premido o objeto, toca em «Copiar» e tenta novamente."
-          }
-        },
-        "ro" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nu am găsit nicio imagine copiată. În Poze, ține apăsat pe subiect, alege „Copiază”, apoi încearcă din nou."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Скопированное изображение не найдено. В приложении «Фото» нажми и удерживай объект, выбери «Скопировать» и попробуй снова."
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skopírovaný obrázok sa nenašiel. V apke Fotky podrž prst na objekte, zvoľ „Kopírovať“ a skús to znova."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ingen kopierad bild hittades. Håll ned ett motiv i Bilder, tryck på ”Kopiera” och försök igen."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ไม่พบภาพที่คัดลอก ในแอปรูปภาพ ให้แตะวัตถุค้างไว้แล้วเลือก “คัดลอก” จากนั้นลองอีกครั้ง"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kopyalanan görsel bulunamadı. Fotoğraflar'da özneye uzun basıp “Kopyala”ya dokun, sonra yeniden dene."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Скопійоване зображення не знайдено. У програмі «Фотографії» натисни й утримуй об'єкт, вибери «Скопіювати» та спробуй ще раз."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không tìm thấy ảnh đã sao chép. Trong ứng dụng Ảnh, chạm và giữ chủ thể, chọn “Sao chép” rồi thử lại."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "找不到拷貝的影像。請在「照片」App 中按住主體並點一下「拷貝」，然後再試一次。"
-          }
-        }
-      }
-    },
-    "コピーした切り抜きを追加" : {
-      "localizations" : {
-        "ca" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afegeix el retall copiat"
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Přidat zkopírovaný výřez"
-          }
-        },
-        "da" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tilføj kopieret udklip"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kopierten Ausschnitt hinzufügen"
-          }
-        },
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Προσθήκη αντιγραμμένου κομματιού"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add Copied Cutout"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Añadir recorte copiado"
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lisää kopioitu leike"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajouter le détourage copié"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "कॉपी किया कटआउट जोड़ें"
-          }
-        },
-        "hr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dodaj kopirani izrezak"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Másolt kivágás hozzáadása"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tambah potongan yang disalin"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aggiungi ritaglio copiato"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "コピーした切り抜きを追加"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "복사한 이미지 추가"
-          }
-        },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tambah keratan yang disalin"
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Legg til kopiert utklipp"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voeg gekopieerde uitsnede toe"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dodaj skopiowany wycinek"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adicionar recorte copiado"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adicionar recorte copiado"
-          }
-        },
-        "ro" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adaugă decupajul copiat"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Добавить скопированную вырезку"
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pridať skopírovaný výrez"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lägg till kopierat utklipp"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "เพิ่มไดคัทที่คัดลอก"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kopyalanan parçayı ekle"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Додати скопійовану вирізку"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thêm hình cắt đã sao chép"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "加入拷貝的去背圖"
           }
         }
       }
