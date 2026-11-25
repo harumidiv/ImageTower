@@ -1,0 +1,398 @@
+{
+  "meta" : {
+    "version" : "2024-11-15"
+  },
+  "resources" : {
+    "achievementImages" : {
+      "imagetower.personal_best-en-US" : [
+        {
+          "localID" : "imagetower.personal_best-en-US",
+          "url" : "en-US\/AchievementImage-imagetower.personal_best-en-US.png"
+        }
+      ],
+      "imagetower.personal_best-ja" : [
+        {
+          "localID" : "imagetower.personal_best-ja",
+          "url" : "ja\/AchievementImage-imagetower.personal_best-ja.png"
+        }
+      ],
+      "imagetower.stack_1-en-US" : [
+        {
+          "localID" : "imagetower.stack_1-en-US",
+          "url" : "en-US\/AchievementImage-imagetower.stack_1-en-US.png"
+        }
+      ],
+      "imagetower.stack_1-ja" : [
+        {
+          "localID" : "imagetower.stack_1-ja",
+          "url" : "ja\/AchievementImage-imagetower.stack_1-ja.png"
+        }
+      ],
+      "imagetower.stack_5-en-US" : [
+        {
+          "localID" : "imagetower.stack_5-en-US",
+          "url" : "en-US\/AchievementImage-imagetower.stack_5-en-US.png"
+        }
+      ],
+      "imagetower.stack_5-ja" : [
+        {
+          "localID" : "imagetower.stack_5-ja",
+          "url" : "ja\/AchievementImage-imagetower.stack_5-ja.png"
+        }
+      ],
+      "imagetower.stack_10-en-US" : [
+        {
+          "localID" : "imagetower.stack_10-en-US",
+          "url" : "en-US\/AchievementImage-imagetower.stack_10-en-US.png"
+        }
+      ],
+      "imagetower.stack_10-ja" : [
+        {
+          "localID" : "imagetower.stack_10-ja",
+          "url" : "ja\/AchievementImage-imagetower.stack_10-ja.png"
+        }
+      ],
+      "imagetower.stack_20-en-US" : [
+        {
+          "localID" : "imagetower.stack_20-en-US",
+          "url" : "en-US\/AchievementImage-imagetower.stack_20-en-US.png"
+        }
+      ],
+      "imagetower.stack_20-ja" : [
+        {
+          "localID" : "imagetower.stack_20-ja",
+          "url" : "ja\/AchievementImage-imagetower.stack_20-ja.png"
+        }
+      ]
+    },
+    "achievementLocalizations" : {
+      "imagetower.personal_best" : [
+        {
+          "afterEarnedDescription" : "You beat your personal best.",
+          "beforeEarnedDescription" : "Beat your existing personal best.",
+          "locale" : "en-US",
+          "localID" : "imagetower.personal_best-en-US",
+          "name" : "New Personal Best"
+        },
+        {
+          "afterEarnedDescription" : "これまでの自己ベストを更新した。",
+          "beforeEarnedDescription" : "これまでの自己ベストを更新しよう。",
+          "locale" : "ja",
+          "localID" : "imagetower.personal_best-ja",
+          "name" : "自己ベスト更新"
+        }
+      ],
+      "imagetower.stack_1" : [
+        {
+          "afterEarnedDescription" : "You stacked your first piece.",
+          "beforeEarnedDescription" : "Stack 1 piece in a single game.",
+          "locale" : "en-US",
+          "localID" : "imagetower.stack_1-en-US",
+          "name" : "First Stack"
+        },
+        {
+          "afterEarnedDescription" : "はじめて1個積んだ。",
+          "beforeEarnedDescription" : "1回のプレイで1個積もう。",
+          "locale" : "ja",
+          "localID" : "imagetower.stack_1-ja",
+          "name" : "はじめのひと積み"
+        }
+      ],
+      "imagetower.stack_5" : [
+        {
+          "afterEarnedDescription" : "You stacked 5 pieces in a single game.",
+          "beforeEarnedDescription" : "Stack 5 pieces in a single game.",
+          "locale" : "en-US",
+          "localID" : "imagetower.stack_5-en-US",
+          "name" : "Five High"
+        },
+        {
+          "afterEarnedDescription" : "1回のプレイで5個積んだ。",
+          "beforeEarnedDescription" : "1回のプレイで5個積もう。",
+          "locale" : "ja",
+          "localID" : "imagetower.stack_5-ja",
+          "name" : "5個積み"
+        }
+      ],
+      "imagetower.stack_10" : [
+        {
+          "afterEarnedDescription" : "You stacked 10 pieces in a single game.",
+          "beforeEarnedDescription" : "Stack 10 pieces in a single game.",
+          "locale" : "en-US",
+          "localID" : "imagetower.stack_10-en-US",
+          "name" : "Ten High"
+        },
+        {
+          "afterEarnedDescription" : "1回のプレイで10個積んだ。",
+          "beforeEarnedDescription" : "1回のプレイで10個積もう。",
+          "locale" : "ja",
+          "localID" : "imagetower.stack_10-ja",
+          "name" : "10個積み"
+        }
+      ],
+      "imagetower.stack_20" : [
+        {
+          "afterEarnedDescription" : "You stacked 20 pieces in a single game.",
+          "beforeEarnedDescription" : "Stack 20 pieces in a single game.",
+          "locale" : "en-US",
+          "localID" : "imagetower.stack_20-en-US",
+          "name" : "Twenty High"
+        },
+        {
+          "afterEarnedDescription" : "1回のプレイで20個積んだ。",
+          "beforeEarnedDescription" : "1回のプレイで20個積もう。",
+          "locale" : "ja",
+          "localID" : "imagetower.stack_20-ja",
+          "name" : "20個積み"
+        }
+      ]
+    },
+    "achievements" : [
+      {
+        "activityProperties" : {
+
+        },
+        "archived" : false,
+        "points" : 5,
+        "referenceName" : "First Stack",
+        "repeatable" : false,
+        "showBeforeEarned" : true,
+        "vendorIdentifier" : "imagetower.stack_1"
+      },
+      {
+        "activityProperties" : {
+
+        },
+        "archived" : false,
+        "points" : 10,
+        "referenceName" : "Five High",
+        "repeatable" : false,
+        "showBeforeEarned" : true,
+        "vendorIdentifier" : "imagetower.stack_5"
+      },
+      {
+        "activityProperties" : {
+
+        },
+        "archived" : false,
+        "points" : 20,
+        "referenceName" : "Ten High",
+        "repeatable" : false,
+        "showBeforeEarned" : true,
+        "vendorIdentifier" : "imagetower.stack_10"
+      },
+      {
+        "activityProperties" : {
+
+        },
+        "archived" : false,
+        "points" : 30,
+        "referenceName" : "Twenty High",
+        "repeatable" : false,
+        "showBeforeEarned" : true,
+        "vendorIdentifier" : "imagetower.stack_20"
+      },
+      {
+        "activityProperties" : {
+
+        },
+        "archived" : false,
+        "points" : 10,
+        "referenceName" : "New Personal Best",
+        "repeatable" : false,
+        "showBeforeEarned" : true,
+        "vendorIdentifier" : "imagetower.personal_best"
+      }
+    ],
+    "leaderboardLocalizations" : {
+      "imagetower.items6" : [
+        {
+          "description" : "Stack as many pieces as you can on stages with 6 materials.",
+          "formatterSuffix" : "pieces",
+          "formatterSuffixSingular" : "piece",
+          "locale" : "en-US",
+          "localID" : "imagetower.items6-en-US",
+          "name" : "6 Materials"
+        },
+        {
+          "description" : "素材6個のステージで、何個積めるか競おう。",
+          "formatterSuffix" : "個",
+          "locale" : "ja",
+          "localID" : "imagetower.items6-ja",
+          "name" : "素材6個"
+        }
+      ],
+      "imagetower.items7" : [
+        {
+          "description" : "Stack as many pieces as you can on stages with 7 materials.",
+          "formatterSuffix" : "pieces",
+          "formatterSuffixSingular" : "piece",
+          "locale" : "en-US",
+          "localID" : "imagetower.items7-en-US",
+          "name" : "7 Materials"
+        },
+        {
+          "description" : "素材7個のステージで、何個積めるか競おう。",
+          "formatterSuffix" : "個",
+          "locale" : "ja",
+          "localID" : "imagetower.items7-ja",
+          "name" : "素材7個"
+        }
+      ],
+      "imagetower.items8" : [
+        {
+          "description" : "Stack as many pieces as you can on stages with 8 materials.",
+          "formatterSuffix" : "pieces",
+          "formatterSuffixSingular" : "piece",
+          "locale" : "en-US",
+          "localID" : "imagetower.items8-en-US",
+          "name" : "8 Materials"
+        },
+        {
+          "description" : "素材8個のステージで、何個積めるか競おう。",
+          "formatterSuffix" : "個",
+          "locale" : "ja",
+          "localID" : "imagetower.items8-ja",
+          "name" : "素材8個"
+        }
+      ],
+      "imagetower.items9" : [
+        {
+          "description" : "Stack as many pieces as you can on stages with 9 materials.",
+          "formatterSuffix" : "pieces",
+          "formatterSuffixSingular" : "piece",
+          "locale" : "en-US",
+          "localID" : "imagetower.items9-en-US",
+          "name" : "9 Materials"
+        },
+        {
+          "description" : "素材9個のステージで、何個積めるか競おう。",
+          "formatterSuffix" : "個",
+          "locale" : "ja",
+          "localID" : "imagetower.items9-ja",
+          "name" : "素材9個"
+        }
+      ],
+      "imagetower.items10" : [
+        {
+          "description" : "Stack as many pieces as you can on stages with 10 materials.",
+          "formatterSuffix" : "pieces",
+          "formatterSuffixSingular" : "piece",
+          "locale" : "en-US",
+          "localID" : "imagetower.items10-en-US",
+          "name" : "10 Materials"
+        },
+        {
+          "description" : "素材10個のステージで、何個積めるか競おう。",
+          "formatterSuffix" : "個",
+          "locale" : "ja",
+          "localID" : "imagetower.items10-ja",
+          "name" : "素材10個"
+        }
+      ],
+      "imagetower.items11" : [
+        {
+          "description" : "Stack as many pieces as you can on stages with 11 materials.",
+          "formatterSuffix" : "pieces",
+          "formatterSuffixSingular" : "piece",
+          "locale" : "en-US",
+          "localID" : "imagetower.items11-en-US",
+          "name" : "11 Materials"
+        },
+        {
+          "description" : "素材11個のステージで、何個積めるか競おう。",
+          "formatterSuffix" : "個",
+          "locale" : "ja",
+          "localID" : "imagetower.items11-ja",
+          "name" : "素材11個"
+        }
+      ]
+    },
+    "leaderboards" : [
+      {
+        "activityProperties" : {
+
+        },
+        "archived" : false,
+        "defaultFormatter" : "INTEGER",
+        "referenceName" : "6 Materials",
+        "scoreRangeEnd" : null,
+        "scoreRangeStart" : null,
+        "scoreSortType" : "DESC",
+        "submissionType" : "BEST_SCORE",
+        "vendorIdentifier" : "imagetower.items6",
+        "visibility" : "SHOW_FOR_ALL"
+      },
+      {
+        "activityProperties" : {
+
+        },
+        "archived" : false,
+        "defaultFormatter" : "INTEGER",
+        "referenceName" : "7 Materials",
+        "scoreRangeEnd" : null,
+        "scoreRangeStart" : null,
+        "scoreSortType" : "DESC",
+        "submissionType" : "BEST_SCORE",
+        "vendorIdentifier" : "imagetower.items7",
+        "visibility" : "SHOW_FOR_ALL"
+      },
+      {
+        "activityProperties" : {
+
+        },
+        "archived" : false,
+        "defaultFormatter" : "INTEGER",
+        "referenceName" : "8 Materials",
+        "scoreRangeEnd" : null,
+        "scoreRangeStart" : null,
+        "scoreSortType" : "DESC",
+        "submissionType" : "BEST_SCORE",
+        "vendorIdentifier" : "imagetower.items8",
+        "visibility" : "SHOW_FOR_ALL"
+      },
+      {
+        "activityProperties" : {
+
+        },
+        "archived" : false,
+        "defaultFormatter" : "INTEGER",
+        "referenceName" : "9 Materials",
+        "scoreRangeEnd" : null,
+        "scoreRangeStart" : null,
+        "scoreSortType" : "DESC",
+        "submissionType" : "BEST_SCORE",
+        "vendorIdentifier" : "imagetower.items9",
+        "visibility" : "SHOW_FOR_ALL"
+      },
+      {
+        "activityProperties" : {
+
+        },
+        "archived" : false,
+        "defaultFormatter" : "INTEGER",
+        "referenceName" : "10 Materials",
+        "scoreRangeEnd" : null,
+        "scoreRangeStart" : null,
+        "scoreSortType" : "DESC",
+        "submissionType" : "BEST_SCORE",
+        "vendorIdentifier" : "imagetower.items10",
+        "visibility" : "SHOW_FOR_ALL"
+      },
+      {
+        "activityProperties" : {
+
+        },
+        "archived" : false,
+        "defaultFormatter" : "INTEGER",
+        "referenceName" : "11 Materials",
+        "scoreRangeEnd" : null,
+        "scoreRangeStart" : null,
+        "scoreSortType" : "DESC",
+        "submissionType" : "BEST_SCORE",
+        "vendorIdentifier" : "imagetower.items11",
+        "visibility" : "SHOW_FOR_ALL"
+      }
+    ]
+  }
+}

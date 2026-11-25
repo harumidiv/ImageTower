@@ -116,6 +116,11 @@ final class TowerGameViewModel: ObservableObject {
         scene.onGameOver = { [weak self] in
             guard let self else { return }
             self.persistBestScore()
+            GameCenter.shared.recordFinishedScore(
+                self.score,
+                itemCount: self.images.count,
+                beatPersonalBest: self.bestScoreAtStart > 0 && self.didUpdateBestScore
+            )
             self.towerSnapshot = self.scene.towerSnapshotImage()
             withAnimation(.spring(response: 0.44, dampingFraction: 0.84)) {
                 self.isGameOver = true
@@ -130,6 +135,7 @@ struct TowerGameView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.displayScale) private var displayScale
     @State private var shareImage: Image?
+    @State private var showingGameCenterSignInHelp = false
     let stageName: String
     let onExit: () -> Void
 
@@ -163,6 +169,7 @@ struct TowerGameView: View {
             if model.isGameOver { gameOverOverlay }
         }
         .onDisappear { model.persistBestScore() }
+        .gameCenterSignInAlert(isPresented: $showingGameCenterSignInHelp)
         .onChange(of: model.towerSnapshot) { _, snapshot in
             shareImage = snapshot.flatMap(makeShareImage)
         }
@@ -388,6 +395,16 @@ struct TowerGameView: View {
                         }
                         .buttonStyle(BouncyButtonStyle())
                     }
+
+                    Button {
+                        showingGameCenterSignInHelp = !GameCenter.shared.show(.leaderboard(itemCount: model.images.count))
+                    } label: {
+                        Label("Leaderboard", systemImage: "trophy.fill")
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .frame(minHeight: 44)
+                    }
+                    .buttonStyle(BouncyButtonStyle())
+                    .foregroundStyle(ImageTowerTheme.ink)
 
                     Button("ホームへ", action: onExit)
                         .font(.system(size: 14, weight: .bold, design: .rounded))

@@ -3,10 +3,12 @@ import UIKit
 
 struct ContentView: View {
     @StateObject private var library = SubjectLibrary()
+    @Environment(\.scenePhase) private var scenePhase
     @State private var editorRoute: StageEditorRoute?
     @State private var playingStageID: UUID?
     @State private var sharingStage: ShareRoute?
     @State private var receiveRoute: ReceiveRoute?
+    @State private var showingGameCenterSignInHelp = false
 
     var body: some View {
         Group {
@@ -24,6 +26,10 @@ struct ContentView: View {
         }
         .tint(ImageTowerTheme.coral)
         .preferredColorScheme(.light)
+        .onChange(of: scenePhase, initial: true) { _, phase in
+            if phase == .active { GameCenter.shared.start() }
+        }
+        .gameCenterSignInAlert(isPresented: $showingGameCenterSignInHelp)
         .sheet(item: $editorRoute) { route in
             SubjectLibraryView(
                 library: library,
@@ -75,6 +81,7 @@ struct ContentView: View {
             ScrollView {
                 VStack(spacing: 22) {
                     titleSection
+                    gameCenterLinks
                     stagesSection
                 }
                 .padding(.horizontal, 18)
@@ -173,6 +180,34 @@ struct ContentView: View {
                 }
             }
         }
+    }
+
+    private var gameCenterLinks: some View {
+        HStack(spacing: 10) {
+            gameCenterButton("Leaderboards", icon: "trophy.fill", dashboard: .leaderboards)
+            gameCenterButton("Achievements", icon: "medal.fill", dashboard: .achievements)
+        }
+    }
+
+    private func gameCenterButton(
+        _ title: LocalizedStringKey,
+        icon: String,
+        dashboard: GameCenter.Dashboard
+    ) -> some View {
+        Button {
+            showingGameCenterSignInHelp = !GameCenter.shared.show(dashboard)
+        } label: {
+            Label(title, systemImage: icon)
+                .font(.system(.subheadline, design: .rounded, weight: .heavy))
+                .foregroundStyle(ImageTowerTheme.ink)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .background(.white, in: RoundedRectangle(cornerRadius: 16))
+                .overlay(RoundedRectangle(cornerRadius: 16).stroke(.black.opacity(0.06)))
+        }
+        .buttonStyle(BouncyButtonStyle())
     }
 
     private var emptyStageCard: some View {
