@@ -1,6 +1,23 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "NSCameraUsageDescription" : {
+      "comment" : "Privacy - Camera Usage Description",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take photos to turn into cutouts for your stages."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ステージに使う切り抜き素材の写真を撮影するためにカメラを使用します。"
+          }
+        }
+      }
+    },
     "CFBundleDisplayName" : {
       "comment" : "Bundle display name",
       "localizations" : {

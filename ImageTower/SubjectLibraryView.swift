@@ -1,3 +1,4 @@
+import AVFoundation
 import ImageIO
 import PhotosUI
 import SwiftUI
@@ -11,6 +12,10 @@ struct SubjectLibraryView: View {
     @State private var selectedAssetIDs: [UUID]
     @State private var photoItems: [PhotosPickerItem] = []
     @State private var photoBatch: LiftPhotoBatch?
+    @State private var isRequestingCameraAccess = false
+    @State private var showingCamera = false
+    @State private var showingCameraSettings = false
+    @State private var cameraResult: Result<UIImage, SubjectProcessingError>?
     @State private var isLoadingPhoto = false
     @State private var loadingPhotoProgress = ""
     @State private var pendingLoadFailureCount = 0
@@ -99,6 +104,23 @@ struct SubjectLibraryView: View {
             }
         }
         .interactiveDismissDisabled(library.isProcessing || isLoadingPhoto)
+        .alert("Camera Access", isPresented: $showingCameraSettings) {
+            Button("Open Settings") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button("キャンセル", role: .cancel) {}
+        } message: {
+            Text("Allow camera access in Settings to take photos for this stage.")
+        }
+        .fullScreenCover(isPresented: $showingCamera, onDismiss: handleCameraDismiss) {
+            StageCameraView { result in
+                cameraResult = result
+                showingCamera = false
+            }
+            .ignoresSafeArea()
+        }
         .fullScreenCover(item: $photoBatch, onDismiss: handleBatchDismiss) { batch in
             SubjectLiftBatchEditorView(
                 images: batch.images,
@@ -203,9 +225,7 @@ struct SubjectLibraryView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text("写真 \(index + 1)")
                     .font(.system(size: 14, weight: .bold, design: .rounded))
-                Text("タワーに落ちてくる写真")
-                    .font(.system(size: 10, weight: .medium, design: .rounded))
-                    .foregroundStyle(ImageTowerTheme.secondaryText)
+                StackingDifficultyRating(asset: asset)
             }
 
             Spacer(minLength: 4)
@@ -341,6 +361,15 @@ struct SubjectLibraryView: View {
 
     private var importActions: some View {
         VStack(spacing: 9) {
+            Button {
+                Task { await openCamera() }
+            } label: {
+                actionLabel(icon: "camera.fill", title: "Take a Photo", filled: false)
+            }
+            .buttonStyle(BouncyButtonStyle())
+            .disabled(remainingStageSlots == 0 || isLoadingPhoto || library.isProcessing || isRequestingCameraAccess)
+            .opacity(remainingStageSlots == 0 ? 0.35 : 1)
+
             PhotosPicker(
                 selection: $photoItems,
                 maxSelectionCount: max(1, remainingStageSlots),
@@ -348,23 +377,12 @@ struct SubjectLibraryView: View {
             ) {
                 actionLabel(icon: "hand.draw.fill", title: "写真を複数選んで切り抜く", filled: true)
             }
-            .disabled(remainingStageSlots == 0 || isLoadingPhoto)
+            .disabled(remainingStageSlots == 0 || isLoadingPhoto || isRequestingCameraAccess)
             .opacity(remainingStageSlots == 0 ? 0.35 : 1)
             .onChange(of: photoItems) { _, items in
                 guard !items.isEmpty else { return }
                 Task { await openPhotos(items) }
             }
-
-            Button {
-                Task {
-                    if let assetID = await library.importPastedImage() {
-                        addToStage(assetID)
-                    }
-                }
-            } label: {
-                actionLabel(icon: "doc.on.clipboard", title: "コピーした切り抜きを追加", filled: false)
-            }
-            .buttonStyle(BouncyButtonStyle())
         }
     }
 
@@ -525,6 +543,49 @@ struct SubjectLibraryView: View {
 
     private var remainingStageSlots: Int {
         max(0, SubjectLibrary.maximumStageItems - selectedAssetIDs.count)
+    }
+
+    private func openCamera() async {
+        guard !isRequestingCameraAccess, !isLoadingPhoto, remainingStageSlots > 0 else { return }
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+            library.errorMessage = String(localized: "The camera is unavailable on this device.")
+            return
+        }
+
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            showingCamera = true
+        case .notDetermined:
+            isRequestingCameraAccess = true
+            showingCamera = await AVCaptureDevice.requestAccess(for: .video)
+            isRequestingCameraAccess = false
+        case .denied:
+            showingCameraSettings = true
+        case .restricted:
+            library.errorMessage = String(localized: "Camera access is restricted on this device.")
+        @unknown default:
+            library.errorMessage = String(localized: "The camera is unavailable on this device.")
+        }
+    }
+
+    private func handleCameraDismiss() {
+        guard let result = cameraResult else { return }
+        cameraResult = nil
+
+        switch result {
+        case .success(let image):
+            isLoadingPhoto = true
+            Task {
+                let prepared = await Task.detached(priority: .userInitiated) {
+                    image.downsampled(maxDimension: CGFloat(LiftPhotoPreparer.analysisMaxPixelSize))
+                        .normalizedOrientation()
+                }.value
+                isLoadingPhoto = false
+                photoBatch = LiftPhotoBatch(images: [prepared])
+            }
+        case .failure(let error):
+            library.errorMessage = error.localizedDescription
+        }
     }
 
     private func openPhotos(_ items: [PhotosPickerItem]) async {
