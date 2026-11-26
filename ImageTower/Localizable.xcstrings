@@ -1,6 +1,26 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Stacking difficulty" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "積みにくさ"
+          }
+        }
+      }
+    },
+    "%lld out of 3" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "星3つ中%lldつ"
+          }
+        }
+      }
+    },
     "Take a Photo" : {
       "localizations" : {
         "ja" : {
@@ -13348,6 +13368,7 @@
       }
     },
     "タワーに落ちてくる写真" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ca" : {
           "stringUnit" : {

@@ -225,9 +225,7 @@ struct SubjectLibraryView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text("写真 \(index + 1)")
                     .font(.system(size: 14, weight: .bold, design: .rounded))
-                Text("タワーに落ちてくる写真")
-                    .font(.system(size: 10, weight: .medium, design: .rounded))
-                    .foregroundStyle(ImageTowerTheme.secondaryText)
+                StackingDifficultyRating(asset: asset)
             }
 
             Spacer(minLength: 4)

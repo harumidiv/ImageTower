@@ -44,7 +44,7 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
             return texture
         }
         physicsTextures = images.map {
-            SKTexture(image: Self.downscaled($0, to: 96))
+            SKTexture(image: Self.collisionImage(for: $0))
         }
         super.init(size: CGSize(width: 390, height: 700))
         scaleMode = .resizeFill
@@ -507,7 +507,8 @@ final class TowerGameScene: SKScene, SKPhysicsContactDelegate {
         onGameOver?()
     }
 
-    nonisolated private static func downscaled(_ image: UIImage, to pixels: CGFloat) -> UIImage {
+    nonisolated static func collisionImage(for image: UIImage) -> UIImage {
+        let pixels: CGFloat = 96
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
         format.opaque = false
